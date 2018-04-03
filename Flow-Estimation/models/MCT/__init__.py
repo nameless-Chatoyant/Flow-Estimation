@@ -4,6 +4,38 @@ import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
 
+def get_coords(h, w):
+    """get coords matrix of x
+    # Arguments
+        h
+        w
+    
+    # Returns
+        coords: (h, w, 2)
+    """
+
+    # int h, w to (0, h), (0, w)
+    if isinstance(h, int):
+        h = (0, h)
+    if isinstance(w, int):
+        w = (0, w)
+
+    h1, h2 = h
+    w1, w2 = w
+    coords = np.empty((h2-h1, w2-w1, 2), dtype = np.int)
+    coords[..., 0] = np.arange(h1, h2)[:, None]
+    coords[..., 1] = np.arange(w1, w2)
+
+    return coords
+
+
+def backward_warp(src, mapping):
+    """
+    src: source image
+    mapping: dst to src 
+    """
+    pass
+
 
 class CoarseFlowNet(nn.Module):
     
@@ -98,11 +130,12 @@ class Net(nn.Module):
 
     
     def forward(self, img1, img2):
+        img_h, img_w = img1.size()[2:]
         x = torch.cat([img1, img2], dim = 1)
         coarse_flow = self.coarse_flow_net(x)
-        coords = []
-        mapping = []
-        sampled = []
+        coords = get_coords(img_h, img_w)
+        mapping = coords - coarse_flow * img_h / 2
+        sampled = backward_warp(img1, mapping)
         x = torch.cat([img1, img2, coarse_flow], dim = 1)
         fine_flow = self.fine_flow_net(x)
         return coarse_flow + fine_flow
