@@ -15,10 +15,8 @@ def get_coords(h, w):
     """
 
     # int h, w to (0, h), (0, w)
-    if isinstance(h, int):
-        h = (0, h)
-    if isinstance(w, int):
-        w = (0, w)
+    if isinstance(h, int): h = (0, h)
+    if isinstance(w, int): w = (0, w)
 
     h1, h2 = h
     w1, w2 = w
@@ -134,8 +132,10 @@ class Net(nn.Module):
         x = torch.cat([img1, img2], dim = 1)
         coarse_flow = self.coarse_flow_net(x)
         coords = get_coords(img_h, img_w)
-        mapping = coords - coarse_flow * img_h / 2
-        sampled = backward_warp(img1, mapping)
+        # print(coords.shape, coarse_flow)
+        # quit()
+        # mapping = coords - coarse_flow * img_h / 2
+        # sampled = backward_warp(img1, mapping)
         x = torch.cat([img1, img2, coarse_flow], dim = 1)
         fine_flow = self.fine_flow_net(x)
         return coarse_flow + fine_flow
@@ -149,7 +149,7 @@ class MCT:
     
 
     def __init__(self):
-        self.model = Net()
+        self.model = Net().cuda()
         self.optimizer = torch.optim.Adam(self.model.parameters(), 4e-5)
     
 
@@ -164,12 +164,12 @@ class MCT:
                 # ===============================================
                 img1 = img1.float()
                 img2 = img2.float()
-                img1, img2, flow = Variable(img1), Variable(img2), Variable(flow)
+                img1, img2, flow = Variable(img1).cuda(), Variable(img2).cuda(), Variable(flow).cuda()
                 img1 /= 255.0
                 img2 /= 255.0
 
 
-
+                print('forward')
                 # ===============================================
                 # Forward
                 # ===============================================
@@ -191,7 +191,7 @@ class MCT:
                 # ===============================================
                 # Summary
                 # ===============================================
-        
+                print('one_epoch')
         for i in range(Config.max_epoches):
             one_epoch(i)
 
