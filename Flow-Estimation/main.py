@@ -8,7 +8,7 @@ def parse():
     parser = argparse.ArgumentParser(description='Structure from Motion Learner training on KITTI and CityScapes Dataset',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     
-    parser.add_argument('-b', '--batch-size', default=4, type=int,
+    parser.add_argument('-b', '--batch-size', default = 8, type=int,
                     metavar='N', help='mini-batch size')
 
     args = parser.parse_args()
@@ -24,12 +24,12 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_dataset,
                             batch_size = args.batch_size,
                             shuffle = True,
-                            num_workers = 1,
+                            num_workers = 6,
                             pin_memory = True)
     eval_loader = DataLoader(eval_dataset,
                             batch_size = args.batch_size,
                             shuffle = True,
-                            num_workers = 1,
+                            num_workers = 6,
                             pin_memory = True)
 
     print(model.train(train_loader, eval_loader))
