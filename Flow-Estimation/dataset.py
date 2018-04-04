@@ -59,7 +59,7 @@ class MPISintel(Dataset):
             img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)
             img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)
     
-        return np.array(img1)[np.newaxis,:,:].astype(np.float), np.array(img2)[np.newaxis,:,:].astype(np.float), np.transpose(flow, (2,0,1)).astype(np.float)
+        return [np.array(img1)[np.newaxis,:,:].astype(np.float), np.array(img2)[np.newaxis,:,:].astype(np.float)], np.transpose(flow, (2,0,1)).astype(np.float)
     
 
     def __len__(self):
@@ -69,5 +69,5 @@ class MPISintel(Dataset):
 if __name__ == '__main__':
     dataset = MPISintel('data_train.txt')
     for i in range(dataset.__len__()):
-        img1, img2, flow = dataset.__getitem__(i)
+        (img1, img2), flow = dataset.__getitem__(i)
         print(img1.shape, img2.shape, flow.shape)

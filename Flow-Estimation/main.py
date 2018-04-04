@@ -1,4 +1,4 @@
-from models import MCT
+from models import *
 from dataset import MPISintel
 from torch.utils.data import DataLoader
 
@@ -18,7 +18,7 @@ def parse():
 
 if __name__ == '__main__':
     args = parse()
-    model = MCT()
+    model = GeneralizedPatchMatch()
     train_dataset = MPISintel('data_train.txt')
     eval_dataset = MPISintel('data_test.txt')
     train_loader = DataLoader(train_dataset,

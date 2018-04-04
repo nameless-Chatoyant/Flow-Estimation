@@ -157,7 +157,7 @@ class MCT:
         self.model.train()
         
         def one_epoch(epoch):
-            for batch_idx, (img1, img2, flow) in enumerate(train_loader):
+            for batch_idx, ((img1, img2), flow) in enumerate(train_loader):
 
                 # ===============================================
                 # Input
