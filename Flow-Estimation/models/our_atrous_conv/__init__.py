@@ -1,5 +1,7 @@
 from ..base import Learnable
 import torch.nn as nn
+import torch.nn.functional as F
+from torch.autograd import Variable
 import torch
 
 
@@ -8,7 +10,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels = 6, out_channels = 32, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
+            nn.Conv2d(in_channels = 2, out_channels = 32, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True),
             nn.ReLU(inplace = True))
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels = 32, out_channels = 32, kernel_size = 3, stride = 1, padding = 2, dilation = 2, groups = 1, bias = True),
@@ -39,6 +41,7 @@ class Net(nn.Module):
 
     def forward(self, img1, img2):
         x = torch.cat([img1, img2], dim = 1)
+        print(x.size())
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
@@ -53,14 +56,57 @@ class Net(nn.Module):
         return x
 
 
+class Config:
+    max_epoches = 80
+
 class OurAtrousConv(Learnable):
     def __init__(self):
-        self.model = Net()
-        pass
+        self.model = Net().cuda()
+        self.optimizer = torch.optim.Adam(self.model.parameters(), 4e-5)
+    
     
 
     def train(self, train_loader, eval_loader):
-        pass
+        self.model.train()
+        
+        def one_epoch(epoch):
+            for batch_idx, ((img1, img2), flow) in enumerate(train_loader):
+
+                # ===============================================
+                # Input
+                # ===============================================
+                img1 = img1.float()
+                img2 = img2.float()
+                flow = flow.float()
+                img1, img2, flow = Variable(img1).cuda(), Variable(img2).cuda(), Variable(flow).cuda()
+                img1 /= 255.0
+                img2 /= 255.0
+
+
+                # ===============================================
+                # Forward
+                # ===============================================
+                predicted_flow = self.model(img1, img2)
+
+
+                # ===============================================
+                # Loss Function
+                # ===============================================
+                # Compute Losses
+                loss = F.mse_loss(predicted_flow, flow)
+
+                # compute gradient and do Adam step
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+
+                # ===============================================
+                # Summary
+                # ===============================================
+                print('one_epoch')
+        for i in range(Config.max_epoches):
+            one_epoch(i)
     
 
     def eval(self):

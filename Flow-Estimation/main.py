@@ -19,25 +19,25 @@ def parse():
 
 
 if __name__ == '__main__':
-    # args = parse()
-    # model = OurAtrousConv()
-    # train_dataset = MPISintel('data_train.txt')
-    # eval_dataset = MPISintel('data_test.txt')
-    # train_loader = DataLoader(train_dataset,
-    #                         batch_size = args.batch_size,
-    #                         shuffle = True,
-    #                         num_workers = 6,
-    #                         pin_memory = True)
-    # eval_loader = DataLoader(eval_dataset,
-    #                         batch_size = args.batch_size,
-    #                         shuffle = True,
-    #                         num_workers = 6,
-    #                         pin_memory = True)
+    args = parse()
+    model = OurAtrousConv()
+    train_dataset = MPISintel('data_train.txt')
+    eval_dataset = MPISintel('data_test.txt')
+    train_loader = DataLoader(train_dataset,
+                            batch_size = args.batch_size,
+                            shuffle = True,
+                            num_workers = 6,
+                            pin_memory = True)
+    eval_loader = DataLoader(eval_dataset,
+                            batch_size = args.batch_size,
+                            shuffle = True,
+                            num_workers = 6,
+                            pin_memory = True)
 
-    # print(model.train(train_loader, eval_loader))
+    print(model.train(train_loader, eval_loader))
 
-    print('wtf')
+    # print('wtf')
 
-    f = flow.load_flow('out.flo')
-    img = flow.compute_color(f[:,:,0], f[:,:,1])
-    imageio.imwrite('out.png', img)
+    # f = flow.load_flow('out.flo')
+    # img = flow.compute_color(f[:,:,0], f[:,:,1])
+    # imageio.imwrite('out.png', img)

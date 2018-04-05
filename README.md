@@ -14,4 +14,6 @@ put MPI Sintel directory
 
 
 # TODO
+- [x] shared dataset(currently only MPI is supported)
+- [x] base class
 - ConvLSTM?

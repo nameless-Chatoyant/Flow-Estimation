@@ -51,7 +51,7 @@ class MPISintel(Dataset):
 
     def __getitem__(self, idx):
         img_path1, img_path2 = self.samples[idx]
-        img1, img2 = imageio.imread(img_path1), imageio.imread(img_path2)
+        img1, img2 = imageio.imread(str(img_path1)), imageio.imread(str(img_path2))
 
         flow_path = str(img_path1).replace('.png', '.flo').replace(self.mode, 'flow')
         flow = load_flow(flow_path)
