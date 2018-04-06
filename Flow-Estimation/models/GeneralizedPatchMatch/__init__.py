@@ -75,7 +75,7 @@ def search_around(idx, heap0, patches, M, N, alpha, g):
     L = 30
     l= 0.5
     q_range = arange(0, 3)
-    cand_offsets = empty((q_range.shape[0], len(heap0)))
+    cand_offsets = empty((q_range.shape[0], len(hecriterionap0)))
     c = 0
     for q in q_range:
         cand_offsets[c,] = build_new_offsets(idx, heap0, L, l, q, M, N)
