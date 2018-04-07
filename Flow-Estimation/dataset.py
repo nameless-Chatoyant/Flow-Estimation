@@ -3,8 +3,30 @@ from pathlib import Path
 from itertools import islice
 import numpy as np
 import imageio
+import torch
+import random
 import cv2
 from utils.io import load_flow
+
+
+class StaticRandomCrop(object):
+    def __init__(self, image_size, crop_size):
+        self.th, self.tw = crop_size
+        h, w = image_size
+        self.h1 = random.randint(0, h - self.th)
+        self.w1 = random.randint(0, w - self.tw)
+
+    def __call__(self, img):
+        return img[self.h1:(self.h1+self.th), self.w1:(self.w1+self.tw),:]
+
+
+class StaticCenterCrop(object):
+    def __init__(self, image_size, crop_size):
+        self.th, self.tw = crop_size
+        self.h, self.w = image_size
+    def __call__(self, img):
+        return img[(self.h-self.th)/2:(self.h+self.th)/2, (self.w-self.tw)/2:(self.w+self.tw)/2,:]
+
 
 def window(seq, n=2):
     "Returns a sliding window (of width n) over data from the iterable"
@@ -21,10 +43,11 @@ def window(seq, n=2):
 class MPISintel(Dataset):
 
 
-    def __init__(self, text_path, mode = 'final', color = 'gray', shape = None):
+    def __init__(self, text_path, mode = 'final', color = 'rgb', shape = None):
         super(MPISintel, self).__init__()
         self.mode = mode
         self.color = color
+        self.shape = shape
 
         root = Path('mpi/training/' + mode)
         self.samples = []
@@ -56,10 +79,21 @@ class MPISintel(Dataset):
         flow_path = str(img_path1).replace('.png', '.flo').replace(self.mode, 'flow')
         flow = load_flow(flow_path)
         if self.color == 'gray':
-            img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)
-            img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)
-    
-        return [np.array(img1)[np.newaxis,:,:].astype(np.float), np.array(img2)[np.newaxis,:,:].astype(np.float)], np.transpose(flow, (2,0,1)).astype(np.float)
+            img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2GRAY)[:,:,np.newaxis]
+            img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2GRAY)[:,:,np.newaxis]
+
+        images = [img1, img2]
+        if self.shape is not None:
+            cropper = StaticRandomCrop(img1.shape[:2], self.shape)
+            images = list(map(cropper, images))
+            flow = cropper(flow)
+        images = np.array(images).transpose(3,0,1,2)
+        flow = flow.transpose(2,0,1)
+
+        images = torch.from_numpy(images.astype(np.float32))
+        flow = torch.from_numpy(flow.astype(np.float32))
+
+        return [images], [flow]
     
 
     def __len__(self):
@@ -67,7 +101,6 @@ class MPISintel(Dataset):
 
 
 if __name__ == '__main__':
-    dataset = MPISintel('data_train.txt')
+    dataset = MPISintel('data_train.txt', shape = (384,768))
     for i in range(dataset.__len__()):
-        (img1, img2), flow = dataset.__getitem__(i)
-        print(img1.shape, img2.shape, flow.shape)
+        images, flow = dataset.__getitem__(i)

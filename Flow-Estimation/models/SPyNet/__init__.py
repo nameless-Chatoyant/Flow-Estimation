@@ -119,11 +119,51 @@ class SPyNet(Learnable):
 
     def __init__(self):
         self.model = Net()
+		self.optimizer = torch.optim.SGD()
+		self.criterion = 0
         pass
     
 
     def train(self, train_loader, eval_loader):
-        pass
+        self.model.train()
+        
+        def one_epoch(epoch):
+            for batch_idx, (data, target) in enumerate(train_loader):
+
+                # ===============================================
+                # Input
+                # ===============================================
+				img1, img2 = data
+                flow = flow.float()
+                img1, img2, flow = Variable(img1).cuda(), Variable(img2).cuda(), Variable(flow).cuda()
+                img1 /= 255.0
+                img2 /= 255.0
+
+
+                # ===============================================
+                # Forward
+                # ===============================================
+                predicted_flow = self.model(img1, img2)
+
+
+                # ===============================================
+                # Loss Function
+                # ===============================================
+                # Compute Losses
+                loss = F.mse_loss(predicted_flow, flow)
+
+                # compute gradient and do Adam step
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+
+                # ===============================================
+                # Summary
+                # ===============================================
+                print('one_epoch')
+        for i in range(Config.max_epoches):
+            one_epoch(i)
     
 
     def eval(self):
@@ -133,7 +173,33 @@ class SPyNet(Learnable):
     def predict(self, img1, img2):
         """
         """
+		assert(tensorInputFirst.size(1) == tensorInputSecond.size(1))
+		assert(tensorInputFirst.size(2) == tensorInputSecond.size(2))
 
         self.model(img1, img2)
-        # 
-        pass
+        intWidth = tensorInputFirst.size(2)
+		intHeight = tensorInputFirst.size(1)
+
+		assert(intWidth == 640) # remember that there is no guarantee for correctness, comment this line out if you acknowledge this and want to continue
+		assert(intHeight == 480) # remember that there is no guarantee for correctness, comment this line out if you acknowledge this and want to continue
+
+		if True:
+			tensorInputFirst = tensorInputFirst.cuda()
+			tensorInputSecond = tensorInputSecond.cuda()
+			tensorOutput = tensorOutput.cuda()
+		# end
+
+		if True:
+			variableInputFirst = torch.autograd.Variable(data=tensorInputFirst.view(1, 3, intHeight, intWidth), volatile=True)
+			variableInputSecond = torch.autograd.Variable(data=tensorInputSecond.view(1, 3, intHeight, intWidth), volatile=True)
+
+			tensorOutput.resize_(2, intHeight, intWidth).copy_(moduleNetwork(variableInputFirst, variableInputSecond).data[0])
+		# end
+
+		if True:
+			tensorInputFirst = tensorInputFirst.cpu()
+			tensorInputSecond = tensorInputSecond.cpu()
+			tensorOutput = tensorOutput.cpu()
+		# end
+
+		return tensorOutput
