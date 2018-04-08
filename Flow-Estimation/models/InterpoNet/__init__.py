@@ -1,7 +1,7 @@
 from ..base import Learnable
 import torch
 import torch.nn as nn
-
+from .SED import SED
 
 class Net(nn.Module):
 
@@ -108,21 +108,34 @@ def compute_loss(outputs_detour):
 
     return total_loss
 
+class Config:
+    loss_weights = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1]
+    max_epoches = 5
+    pass
+
+
 class InterpoNet(Learnable):
     def __init__(self):
-        self.model = Net()
-
+        self.model = Net(mode = 'train')
+        self.sed = SED()
+        self.optimizer = 0
         self.criterion = 0
         pass
     
     
     def train(self, train_loader, eval_loader):
-        pass
+        self.model.train()
 
-        # Downscale
+        def one_epoch(epoch):
+            for batch_idx, (data, target) in enumerate(train_loader):
+                edge_map = self.sed.predict()
+                self.model(data)
+                pass
 
 
-        # Upscale
+        for i in range(Config.max_epoches):
+            one_epoch(i)
+
     
     
     def eval(self):

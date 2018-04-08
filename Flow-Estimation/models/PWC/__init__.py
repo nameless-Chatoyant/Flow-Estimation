@@ -69,7 +69,7 @@ class FeaturePyramidExtractor(nn.Module):
 
 class OpticalFlowEstimator(nn.Module):
 
-     def __init__(self):
+    def __init__(self):
         super(OpticalFlowEstimator, self).__init__()
 
         self.conv1 = nn.Sequential(
@@ -88,19 +88,18 @@ class OpticalFlowEstimator(nn.Module):
             nn.Conv2d(in_channels = 64, out_channels = 32, kernel_size = 3, stride = 1, padding = 8, dilation = 1, groups = 1, bias = True),
             nn.LeakyReLU(inplace = True))
         self.conv6 = nn.Conv2d(in_channels = 32, out_channels = 2, kernel_size = 3, stride = 1, padding = 1, dilation = 1, groups = 1, bias = True)
-        """
-        def forward(self, feature1, feature2, flow):
-            warped = F.grid_sample(feature2, flow)
-            
-            out_conv1 = self.conv1(flow)
-            out_conv2 = self.conv2(out_conv1)
-            out_conv3 = self.conv3(out_conv2)
-            out_conv4 = self.conv4(out_conv3)
-            out_conv5 = self.conv5(out_conv4)
-            out_conv6 = self.conv6(out_conv5)
-            
-            return out_conv6
-        """
+
+    def forward(self, feature1, feature2, flow):
+        warped = F.grid_sample(feature2, flow)
+        
+        out_conv1 = self.conv1(flow)
+        out_conv2 = self.conv2(out_conv1)
+        out_conv3 = self.conv3(out_conv2)
+        out_conv4 = self.conv4(out_conv3)
+        out_conv5 = self.conv5(out_conv4)
+        out_conv6 = self.conv6(out_conv5)
+        
+        return out_conv6
 
 class ContextNet(nn.Module):
 
@@ -142,6 +141,8 @@ class Net(nn.Module):
     
 
     def forward(self, x):
+        """
+        """
         pass
 
 
@@ -167,13 +168,13 @@ class PWC:
         self.model.train()
         
         def one_epoch(epoch):
-            for batch_idx, (img1, img2, flow) in enumerate(train_loader):
+            for batch_idx, (data, target) in enumerate(train_loader):
 
                 # ===============================================
                 # Input
                 # ===============================================
-                img1 = img1.float()
-                img2 = img2.float()
+                img1, img2 = data
+                flow = target
                 img1, img2, flow = Variable(img1), Variable(img2), Variable(flow)
                 img1 /= 255.0
                 img2 /= 255.0
