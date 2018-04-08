@@ -20,7 +20,7 @@ def parse():
 
 if __name__ == '__main__':
     args = parse()
-    model = PWC()
+    model = OurAtrousConv()
     train_dataset = MPISintel('data_train.txt')
     eval_dataset = MPISintel('data_test.txt')
     train_loader = DataLoader(train_dataset,

@@ -70,13 +70,13 @@ class OurAtrousConv(Learnable):
         self.model.train()
         
         def one_epoch(epoch):
-            for batch_idx, ((img1, img2), flow) in enumerate(train_loader):
+            for batch_idx, (data, target) in enumerate(train_loader):
 
                 # ===============================================
                 # Input
                 # ===============================================
-                img1 = img1.float()
-                img2 = img2.float()
+                img1, img2 = data
+                flow = target
                 flow = flow.float()
                 img1, img2, flow = Variable(img1).cuda(), Variable(img2).cuda(), Variable(flow).cuda()
                 img1 /= 255.0
