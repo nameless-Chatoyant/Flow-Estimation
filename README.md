@@ -5,6 +5,7 @@ put MPI Sintel directory
 
 | Model | Paper | b |
 | --- | --- | --- |
+| MRFlow | [arXiv]() | |
 | DCFlow | [arXiv]() | 
 | InterpoNet | [arXiv]() | |
 | PatchBatch | [arXiv](https://arxiv.org/abs/1709.02371) | TODO |

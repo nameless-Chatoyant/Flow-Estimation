@@ -71,11 +71,10 @@ class OurAtrousConv(Learnable):
         
         def one_epoch(epoch):
             for batch_idx, (data, target) in enumerate(train_loader):
-
                 # ===============================================
                 # Input
                 # ===============================================
-                img1, img2 = data
+                img1, img2 = torch.split(data[0], 2, 1)
                 flow = target
                 flow = flow.float()
                 img1, img2, flow = Variable(img1).cuda(), Variable(img2).cuda(), Variable(flow).cuda()

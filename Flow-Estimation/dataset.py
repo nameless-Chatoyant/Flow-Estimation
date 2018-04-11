@@ -104,3 +104,4 @@ if __name__ == '__main__':
     dataset = MPISintel('data_train.txt', shape = (384,768))
     for i in range(dataset.__len__()):
         images, flow = dataset.__getitem__(i)
+        print(images[0].size(), flow[0].size())
